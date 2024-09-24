@@ -27,9 +27,7 @@ func main() {
 
 	stor := rg.Must(toold.NewStorage(opts))
 
-	hand := &toold.App{
-		Storage: stor,
-	}
+	hand := toold.NewApp(stor, map[string]toold.Adapter{})
 
 	s := &http.Server{
 		Addr:    opts.Listen,

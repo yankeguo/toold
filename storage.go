@@ -30,5 +30,6 @@ func NewStorage(opts Options) (st *Storage, err error) {
 			},
 		},
 	)
+
 	return
 }

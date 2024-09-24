@@ -3,14 +3,13 @@ package toold
 import "strings"
 
 var (
-	osDarwin  = "darwin"
-	osWindows = "windows"
-	osLinux   = "linux"
+	osDarwin = "darwin"
+	osLinux  = "linux"
 
 	archAmd64 = "amd64"
 	archArm64 = "arm64"
 
-	supportedOS   = []string{osLinux, osDarwin, osWindows}
+	supportedOS   = []string{osLinux, osDarwin}
 	supportedArch = []string{archAmd64, archArm64}
 )
 
