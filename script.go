@@ -44,13 +44,16 @@ func (sb *ScriptBuilder) add(layout string, data map[string]any) {
 	sb.b.WriteString(buf.String())
 }
 
-func (sb *ScriptBuilder) AddEcho(s string) {
-	s = strings.TrimSpace(s) + "\n"
+func (sb *ScriptBuilder) AddWarning(s string) {
+	items := strings.Split(s, "\n")
+	for i := range items {
+		items[i] = "toold: " + items[i]
+	}
 
 	sb.add(
-		`echo -n "{{.content}}" | base64 -d > /dev/stderr`,
+		`echo "{{.content}}" | base64 -d > /dev/stderr`,
 		map[string]any{
-			"content": base64.StdEncoding.EncodeToString([]byte(s)),
+			"content": base64.StdEncoding.EncodeToString([]byte(strings.Join(items, "\n"))),
 		},
 	)
 }
@@ -66,28 +69,32 @@ func (sb *ScriptBuilder) AddDownloadAndExtract(opts ScriptDownloadAndExtractOpti
 	sb.add(`
 TOOLD_ROOT="${TOOLD_ROOT}"
 if [ -z "${TOOLD_ROOT}" ]; then
-  echo "TOOLD_ROOT is not set, default to ~/.toold" > /dev/stderr
+  echo "toold: TOOLD_ROOT is not set, default to ~/.toold" > /dev/stderr
   TOOLD_ROOT="${HOME}/.toold"
 fi
 
 mkdir -p "${TOOLD_ROOT}"
 
 if [ -f "${TOOLD_HOME}/{{.dir}}.incomplete" ]; then
-  echo "found incomplete dir {{.dir}}, cleaning up" > /dev/stderr
+  echo "toold: found incomplete dir {{.dir}}, cleaning up" > /dev/stderr
   rm -rf "${TOOLD_ROOT}/{{.dir}}"
 fi
 
-touch "${TOOLD_ROOT}/{{.dir}}.incomplete"
+if [ ! -d "${TOOLD_ROOT}/{{.dir}}" ]; then
 
-mkdir -p "${TOOLD_ROOT}/{{.dir}}"
+	touch "${TOOLD_ROOT}/{{.dir}}.incomplete"
 
-curl -sSL "{{.url}}" | tar -xz -C "${TOOLD_ROOT}/{{.dir}}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}}
+	mkdir -p "${TOOLD_ROOT}/{{.dir}}"
 
-rm -f "${TOOLD_ROOT}/{{.dir}}.incomplete"
+	curl -sSL "{{.url}}" | tar -xz -C "${TOOLD_ROOT}/{{.dir}}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}}
 
-echo "{{.dir}} completed" > /dev/stderr
+	rm -f "${TOOLD_ROOT}/{{.dir}}.incomplete"
+
+	echo "toold: downloaded {{.dir}}" > /dev/stderr
+fi
 
 {{if .prepend_path}}
+echo "toold: using {{.dir}}" > /dev/stderr
 echo "export PATH=\"${TOOLD_ROOT}/{{.dir}}/{{.prepend_path}}:\$PATH\""
 {{end}}
 `,
