@@ -7,12 +7,19 @@ import (
 )
 
 func TestParseManifest(t *testing.T) {
-	m := ParseManifest("linux/amd64/ww/bb/go  @1.16")
+	m := ParseManifest("linux/amd64/ww/node@20/bb/go  @1.16")
 	require.Equal(t, Manifest{
 		OS:   osLinux,
 		Arch: archAmd64,
-		Tools: map[string]string{
-			"go": "1.16",
+		Tools: []ManifestTool{
+			{
+				Name:    "node",
+				Version: "20",
+			},
+			{
+				Name:    "go",
+				Version: "1.16",
+			},
 		},
 	}, m)
 }
