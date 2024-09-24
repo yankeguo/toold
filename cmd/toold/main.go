@@ -10,6 +10,7 @@ import (
 
 	"github.com/yankeguo/rg"
 	"github.com/yankeguo/toold"
+	"github.com/yankeguo/toold/adapters/node"
 )
 
 func main() {
@@ -27,7 +28,9 @@ func main() {
 
 	stor := rg.Must(toold.NewStorage(opts))
 
-	hand := toold.NewApp(stor, map[string]toold.Adapter{})
+	hand := toold.NewApp(stor, map[string]toold.Adapter{
+		"node": &node.Adapter{},
+	})
 
 	s := &http.Server{
 		Addr:    opts.Listen,

@@ -2,15 +2,17 @@ package toold
 
 import "strings"
 
+const (
+	Darwin = "darwin"
+	Linux  = "linux"
+
+	Amd64 = "amd64"
+	Arm64 = "arm64"
+)
+
 var (
-	osDarwin = "darwin"
-	osLinux  = "linux"
-
-	archAmd64 = "amd64"
-	archArm64 = "arm64"
-
-	supportedOS   = []string{osLinux, osDarwin}
-	supportedArch = []string{archAmd64, archArm64}
+	SupportedOS   = []string{Linux, Darwin}
+	SupportedArch = []string{Amd64, Arm64}
 )
 
 type ManifestTool struct {
@@ -31,13 +33,13 @@ outerLoop:
 		if c == "" {
 			continue
 		}
-		for _, os := range supportedOS {
+		for _, os := range SupportedOS {
 			if c == os {
 				m.OS = os
 				continue outerLoop
 			}
 		}
-		for _, arch := range supportedArch {
+		for _, arch := range SupportedArch {
 			if c == arch {
 				m.Arch = arch
 				continue outerLoop
@@ -58,10 +60,10 @@ outerLoop:
 	}
 
 	if m.OS == "" {
-		m.OS = supportedOS[0]
+		m.OS = SupportedOS[0]
 	}
 	if m.Arch == "" {
-		m.Arch = supportedArch[0]
+		m.Arch = SupportedArch[0]
 	}
 	return
 }
