@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -10,31 +9,8 @@ import (
 	"syscall"
 
 	"github.com/yankeguo/rg"
-	"gopkg.in/yaml.v3"
+	"github.com/yankeguo/toold"
 )
-
-type Options struct {
-	Verbose bool   `yaml:"verbose"`
-	Listen  string `yaml:"listen"`
-}
-
-func loadOptions() (opts Options, err error) {
-	defer rg.Guard(&err)
-
-	// load options from config file
-	var conf string
-	flag.StringVar(&conf, "conf", "toold.yaml", "config file")
-	flag.Parse()
-
-	// unmarshal options
-	rg.Must0(yaml.Unmarshal(rg.Must(os.ReadFile(conf)), &opts))
-
-	if opts.Listen == "" {
-		opts.Listen = ":8080"
-	}
-
-	return
-}
 
 func main() {
 	var err error
@@ -47,13 +23,17 @@ func main() {
 	}()
 	defer rg.Guard(&err)
 
-	opts := rg.Must(loadOptions())
+	opts := rg.Must(toold.LoadOptions())
 
-	m := &http.ServeMux{}
+	stor := rg.Must(toold.NewStorage(opts))
+
+	hand := &toold.App{
+		Storage: stor,
+	}
 
 	s := &http.Server{
 		Addr:    opts.Listen,
-		Handler: m,
+		Handler: hand,
 	}
 
 	chErr := make(chan error, 1)
