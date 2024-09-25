@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.1.1 - 2024-09-25
+#### Bug Fixes
+- using TOOLD_HOME for installation directory - (6fa8165) - GUO YANKE
+
+- - -
+
 ## v0.1.0 - 2024-09-25
 #### Bug Fixes
 - fix adoptium PATH for macOS - (4acb0ad) - GUO YANKE
