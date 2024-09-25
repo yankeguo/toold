@@ -9,7 +9,7 @@ import (
 	"github.com/yankeguo/toold"
 )
 
-func createVersionExtractor(os string, arch string) toold.VersionExtractor {
+func createVersionExtractor() toold.VersionExtractor {
 	return func(src string) (ver string, ok bool) {
 		// check tar.gz
 		if !strings.HasSuffix(src, ".tar.gz") {
@@ -33,7 +33,7 @@ func (a *Adapter) Build(ctx context.Context, opts toold.AdapterOptions) (err err
 
 	file, version := rg.Must2(toold.FindBestVersionedFile(toold.FindBestVersionedFileOptions{
 		Files:             files,
-		VersionExtractor:  createVersionExtractor(opts.OS, opts.Arch),
+		VersionExtractor:  createVersionExtractor(),
 		VersionConstraint: opts.Version,
 	}))
 
