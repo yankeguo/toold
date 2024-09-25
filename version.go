@@ -8,7 +8,9 @@ import (
 
 type ArbitraryVersion []int
 
-func ParseArbitraryVersion(v string) (sv ArbitraryVersion) {
+func ParseArbitraryVersion(v string) ArbitraryVersion {
+	sv := ArbitraryVersion{}
+
 	var chunk string
 	for _, c := range v {
 		if c <= '9' && c >= '0' {
@@ -25,11 +27,13 @@ func ParseArbitraryVersion(v string) (sv ArbitraryVersion) {
 			}
 		}
 	}
+
 	if chunk != "" {
 		n, _ := strconv.Atoi(chunk)
 		sv = append(sv, n)
 	}
-	return
+
+	return sv
 }
 
 func (sv ArbitraryVersion) String() string {

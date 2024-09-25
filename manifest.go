@@ -46,17 +46,25 @@ outerLoop:
 			}
 		}
 		splits := strings.Split(c, "@")
-		if len(splits) != 2 {
-			continue
+		if len(splits) == 1 {
+			key := strings.TrimSpace(splits[0])
+			if key == "" {
+				continue
+			}
+			m.Tools = append(m.Tools, ManifestTool{
+				Name:    key,
+				Version: "",
+			})
+		} else if len(splits) == 2 {
+			key, ver := strings.TrimSpace(splits[0]), strings.TrimSpace(splits[1])
+			if key == "" || ver == "" {
+				continue
+			}
+			m.Tools = append(m.Tools, ManifestTool{
+				Name:    key,
+				Version: ver,
+			})
 		}
-		key, ver := strings.TrimSpace(splits[0]), strings.TrimSpace(splits[1])
-		if key == "" || ver == "" {
-			continue
-		}
-		m.Tools = append(m.Tools, ManifestTool{
-			Name:    key,
-			Version: ver,
-		})
 	}
 
 	if m.OS == "" {

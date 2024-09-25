@@ -11,6 +11,7 @@ func TestParseArbitraryVersion(t *testing.T) {
 		v string
 		e ArbitraryVersion
 	}{
+		{"", ArbitraryVersion{}},
 		{"1.2.3", ArbitraryVersion{1, 2, 3}},
 		{" as 234 35_22  ", ArbitraryVersion{234, 35, 22}},
 	}

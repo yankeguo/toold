@@ -7,7 +7,7 @@ import (
 )
 
 func TestParseManifest(t *testing.T) {
-	m := ParseManifest("linux/amd64/ww/node@20/bb/go  @1.16")
+	m := ParseManifest("linux/amd64/node@20/yarn/go  @1.16")
 	require.Equal(t, Manifest{
 		OS:   Linux,
 		Arch: Amd64,
@@ -15,6 +15,9 @@ func TestParseManifest(t *testing.T) {
 			{
 				Name:    "node",
 				Version: "20",
+			},
+			{
+				Name: "yarn",
 			},
 			{
 				Name:    "go",
