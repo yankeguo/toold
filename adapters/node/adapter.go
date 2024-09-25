@@ -56,7 +56,7 @@ func (a *Adapter) Build(ctx context.Context, opts toold.AdapterOptions) (err err
 		URL:             rg.Must(opts.Storage.CreateSignedURL(ctx, "node/"+file, time.Minute*10)),
 		Dir:             "node-" + version.String(),
 		StripComponents: 1,
-		PrependPath:     "bin",
+		EnvPrependPath:  "bin",
 	})
 	return
 }
