@@ -98,34 +98,47 @@ if [ -z "${TOOLD_HOME}" ]; then
     echo "toold: \$TOOLD_HOME is not set, using ~/.toold" 1>&2
     TOOLD_HOME="${HOME}/.toold"
 fi
-
 mkdir -p "${TOOLD_HOME}" 1>&2
 
-if [ -f "${TOOLD_HOME}/{{.dir}}.incomplete" ]; then
-    echo "toold: found incomplete dir {{.dir}}, cleaning up" 1>&2
-    rm -rf "${TOOLD_HOME}/{{.dir}}" 1>&2
-fi
+TOOL_DIR="${TOOLD_HOME}/{{.dir}}"
+PID_FILE="${TOOL_DIR}.incomplete"
 
-if [ ! -d "${TOOLD_HOME}/{{.dir}}" ]; then
-    touch "${TOOLD_HOME}/{{.dir}}.incomplete" 1>&2
-    mkdir -p "${TOOLD_HOME}/{{.dir}}" 1>&2
+while true; do
+    if [ -f "${PID_FILE}" ]; then
+        PID=$(cat "${PID_FILE}")
+        if [ -n "${PID}" ] && kill -0 "${PID}" &> /dev/null; then
+            echo "toold: waiting for another process to finish" 1>&2
+            sleep 5
+        else
+            echo "toold: found incomplete dir {{.dir}}, cleaning up" 1>&2
+            rm -rf "${PID_FILE}" "${TOOL_DIR}" 1>&2
+            break
+        fi
+    else
+        break
+    fi
+done
+
+if [ ! -d "${TOOL_DIR}" ]; then
+    echo -n $$ > "${PID_FILE}"
+    mkdir -p "${TOOL_DIR}" 1>&2
     echo "toold: downloading {{.dir}}" 1>&2
-    curl -sSL "{{.url}}" | tar -xz -C "${TOOLD_HOME}/{{.dir}}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}} 1>&2
-    rm -f "${TOOLD_HOME}/{{.dir}}.incomplete" 1>&2
+    curl -sSL "{{.url}}" | tar -xz -C "${TOOL_DIR}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}} 1>&2
+    rm -f "${PID_FILE}" 1>&2
 fi
 
 {{if .env_prepend_path}}
 echo "toold: using {{.dir}}" 1>&2
 {{range .env_prepend_path}}
-export PATH="${TOOLD_HOME}/{{$.dir}}{{.}}:$PATH"
-echo "export PATH=\"${TOOLD_HOME}/{{$.dir}}{{.}}:\$PATH\""
+export PATH="${TOOL_DIR}{{.}}:$PATH"
+echo "export PATH=\"${TOOL_DIR}{{.}}:\$PATH\""
 {{end}}
 {{end}}
 
 {{if .env}}
 {{range $key, $value := .env}}
-export {{$key}}="${TOOLD_HOME}/{{$.dir}}{{$value}}"
-echo "export {{$key}}=\"${TOOLD_HOME}/{{$.dir}}{{$value}}\""
+export {{$key}}="${TOOL_DIR}{{$value}}"
+echo "export {{$key}}=\"${TOOL_DIR}{{$value}}\""
 {{end}}
 {{end}}
 `,
