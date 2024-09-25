@@ -55,7 +55,7 @@ func (sb *ScriptBuilder) AddWarning(s string) {
 	}
 
 	sb.AddTemplate(
-		`echo "{{.content}}" | base64 -d > /dev/stderr`,
+		`echo "{{.content}}" | base64 -d 1>&2`,
 		map[string]any{
 			"content": base64.StdEncoding.EncodeToString([]byte(strings.Join(items, "\n"))),
 		},
@@ -70,8 +70,11 @@ type ScriptGlobalNodePackageOptions struct {
 
 func (sb *ScriptBuilder) AddScriptGlobalNodePackageOptions(opts ScriptGlobalNodePackageOptions) {
 	sb.AddTemplate(`
-if ! command -v "{{.command}}" > /dev/null; then
-	npm install -g "{{.package}}"{{if .registry}} --registry="{{.registry}}"{{end}}
+if command -v "{{.command}}" > /dev/null; then
+    echo "toold: {{.command}} is already installed" 1>&2
+else
+    echo "toold: installing {{.command}}" 1>&2
+    npm install -g "{{.package}}"{{if .registry}} --registry="{{.registry}}"{{end}} 1>&2
 fi
 `, map[string]any{
 		"command":  opts.Command,
@@ -91,32 +94,27 @@ func (sb *ScriptBuilder) AddDownloadAndExtract(opts ScriptDownloadAndExtractOpti
 	sb.AddTemplate(`
 TOOLD_ROOT="${TOOLD_ROOT}"
 if [ -z "${TOOLD_ROOT}" ]; then
-  echo "toold: TOOLD_ROOT is not set, default to ~/.toold" > /dev/stderr
-  TOOLD_ROOT="${HOME}/.toold"
+    echo "toold: TOOLD_ROOT is not set, default to ~/.toold" 1>&2
+    TOOLD_ROOT="${HOME}/.toold"
 fi
 
-mkdir -p "${TOOLD_ROOT}"
+mkdir -p "${TOOLD_ROOT}" 1>&2
 
 if [ -f "${TOOLD_HOME}/{{.dir}}.incomplete" ]; then
-  echo "toold: found incomplete dir {{.dir}}, cleaning up" > /dev/stderr
-  rm -rf "${TOOLD_ROOT}/{{.dir}}"
+    echo "toold: found incomplete dir {{.dir}}, cleaning up" 1>&2
+    rm -rf "${TOOLD_ROOT}/{{.dir}}" 1>&2
 fi
 
 if [ ! -d "${TOOLD_ROOT}/{{.dir}}" ]; then
-
-	touch "${TOOLD_ROOT}/{{.dir}}.incomplete"
-
-	mkdir -p "${TOOLD_ROOT}/{{.dir}}"
-
-	curl -sSL "{{.url}}" | tar -xz -C "${TOOLD_ROOT}/{{.dir}}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}}
-
-	rm -f "${TOOLD_ROOT}/{{.dir}}.incomplete"
-
-	echo "toold: downloaded {{.dir}}" > /dev/stderr
+    touch "${TOOLD_ROOT}/{{.dir}}.incomplete" 1>&2
+    mkdir -p "${TOOLD_ROOT}/{{.dir}}" 1>&2
+    curl -sSL "{{.url}}" | tar -xz -C "${TOOLD_ROOT}/{{.dir}}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}} 1>&2
+    rm -f "${TOOLD_ROOT}/{{.dir}}.incomplete" 1>&2
+    echo "toold: downloaded {{.dir}}" 1>&2
 fi
 
 {{if .prepend_path}}
-echo "toold: using {{.dir}}" > /dev/stderr
+echo "toold: using {{.dir}}" 1>&2
 echo "export PATH=\"${TOOLD_ROOT}/{{.dir}}/{{.prepend_path}}:\$PATH\""
 {{end}}
 `,

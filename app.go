@@ -25,7 +25,7 @@ func (h *App) build(ctx context.Context, out *ScriptBuilder, m Manifest) {
 		adapter, ok := h.adapters[tool.Name]
 		if !ok {
 			out.AddWarning("adapter not found for [" + tool.Name + "]")
-			continue
+			break
 		}
 		sub := NewScriptBuilder()
 		if err := adapter.Build(ctx, AdapterOptions{
@@ -36,10 +36,11 @@ func (h *App) build(ctx context.Context, out *ScriptBuilder, m Manifest) {
 			Name:    tool.Name,
 			Version: tool.Version,
 		}); err != nil {
-			sub.Reset()
-			sub.AddWarning("adapter [" + tool.Name + "] failed: " + err.Error())
+			out.AddWarning("adapter [" + tool.Name + "] failed: " + err.Error())
+			break
+		} else {
+			out.Concat(sub)
 		}
-		out.Concat(sub)
 	}
 }
 
