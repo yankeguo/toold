@@ -108,9 +108,9 @@ fi
 if [ ! -d "${TOOLD_ROOT}/{{.dir}}" ]; then
     touch "${TOOLD_ROOT}/{{.dir}}.incomplete" 1>&2
     mkdir -p "${TOOLD_ROOT}/{{.dir}}" 1>&2
+    echo "toold: downloading {{.dir}}" 1>&2
     curl -sSL "{{.url}}" | tar -xz -C "${TOOLD_ROOT}/{{.dir}}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}} 1>&2
     rm -f "${TOOLD_ROOT}/{{.dir}}.incomplete" 1>&2
-    echo "toold: downloaded {{.dir}}" 1>&2
 fi
 
 {{if .prepend_path}}

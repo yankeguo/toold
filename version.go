@@ -14,10 +14,6 @@ func ParseArbitraryVersion(v string) ArbitraryVersion {
 	var chunk string
 	for _, c := range v {
 		if c <= '9' && c >= '0' {
-			// no leading zero
-			if len(chunk) == 0 && c == '0' {
-				continue
-			}
 			chunk += string(c)
 		} else {
 			if chunk != "" {
@@ -78,15 +74,16 @@ func (sv ArbitraryVersion) Compare(other ArbitraryVersion) int {
 	}
 }
 
+type VersionExtractor func(src string) (ver string, ok bool)
+
 type FindBestVersionedFileOptions struct {
-	Files   []string
-	Prefix  string
-	Suffix  string
-	Version string
+	Files             []string
+	VersionExtractor  VersionExtractor
+	VersionConstraint string
 }
 
 func FindBestVersionedFile(opts FindBestVersionedFileOptions) (bestFile string, bestVersion ArbitraryVersion, err error) {
-	constraint := ParseArbitraryVersion(opts.Version)
+	constraint := ParseArbitraryVersion(opts.VersionConstraint)
 
 	type eligibleItem struct {
 		file    string
@@ -95,25 +92,23 @@ func FindBestVersionedFile(opts FindBestVersionedFileOptions) (bestFile string, 
 	var items []eligibleItem
 
 	for _, file := range opts.Files {
-		// validate prefix and suffix
-		if !strings.HasPrefix(file, opts.Prefix) {
+		// version extractor
+		v, ok := opts.VersionExtractor(file)
+		if !ok {
 			continue
 		}
-		if !strings.HasSuffix(file, opts.Suffix) {
-			continue
-		}
-		// validate version
-		version := ParseArbitraryVersion(strings.TrimSuffix(strings.TrimPrefix(file, opts.Prefix), opts.Suffix))
-		if version.Match(constraint) {
+		// av constraint
+		av := ParseArbitraryVersion(v)
+		if av.Match(constraint) {
 			items = append(items, eligibleItem{
 				file:    file,
-				version: version,
+				version: av,
 			})
 		}
 	}
 
 	if len(items) == 0 {
-		err = errors.New("no matching file found for version: " + opts.Version)
+		err = errors.New("no matching file found for version: " + opts.VersionConstraint)
 		return
 	}
 

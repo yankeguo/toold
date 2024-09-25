@@ -11,6 +11,7 @@ import (
 	"github.com/yankeguo/rg"
 	"github.com/yankeguo/toold"
 	"github.com/yankeguo/toold/adapters/cnpm"
+	"github.com/yankeguo/toold/adapters/jdk"
 	"github.com/yankeguo/toold/adapters/node"
 	"github.com/yankeguo/toold/adapters/yarn"
 )
@@ -40,6 +41,7 @@ func main() {
 		"node": &node.Adapter{},
 		"yarn": &yarn.Adapter{},
 		"cnpm": &cnpm.Adapter{},
+		"jdk":  &jdk.Adapter{},
 	})
 
 	s := &http.Server{

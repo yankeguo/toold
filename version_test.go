@@ -1,6 +1,7 @@
 package toold
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,6 +15,8 @@ func TestParseArbitraryVersion(t *testing.T) {
 		{"", ArbitraryVersion{}},
 		{"1.2.3", ArbitraryVersion{1, 2, 3}},
 		{" as 234 35_22  ", ArbitraryVersion{234, 35, 22}},
+		{"1.0.3", ArbitraryVersion{1, 0, 3}},
+		{"1.0002.3", ArbitraryVersion{1, 2, 3}},
 	}
 	for _, c := range cases {
 		require.Equal(t, c.e, ParseArbitraryVersion(c.v))
@@ -77,9 +80,16 @@ func TestFindBestVersionedFile(t *testing.T) {
 				"node-v1.3.3-linux-x64.tar.gz",
 				"node-v1.3.4-windows-x64.tar.gz",
 			},
-			Prefix:  "node-v",
-			Suffix:  "-linux-x64.tar.gz",
-			Version: "1.3",
+			VersionExtractor: func(s string) (v string, ok bool) {
+				const (
+					prefix = "node-v"
+					suffix = "-linux-x64.tar.gz"
+				)
+				ok = strings.HasPrefix(s, prefix) && strings.HasSuffix(s, suffix)
+				v = strings.TrimPrefix(strings.TrimSuffix(s, suffix), prefix)
+				return
+			},
+			VersionConstraint: "1.3",
 		},
 	)
 	require.NoError(t, err)
