@@ -117,12 +117,14 @@ fi
 {{if .env_prepend_path}}
 echo "toold: using {{.dir}}" 1>&2
 {{range .env_prepend_path}}
+export PATH="${TOOLD_HOME}/{{$.dir}}{{.}}:$PATH"
 echo "export PATH=\"${TOOLD_HOME}/{{$.dir}}{{.}}:\$PATH\""
 {{end}}
 {{end}}
 
 {{if .env}}
 {{range $key, $value := .env}}
+export {{$key}}="${TOOLD_HOME}/{{$.dir}}{{$value}}"
 echo "export {{$key}}=\"${TOOLD_HOME}/{{$.dir}}{{$value}}\""
 {{end}}
 {{end}}
