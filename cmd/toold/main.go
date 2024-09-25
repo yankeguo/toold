@@ -10,7 +10,9 @@ import (
 
 	"github.com/yankeguo/rg"
 	"github.com/yankeguo/toold"
+	"github.com/yankeguo/toold/adapters/cnpm"
 	"github.com/yankeguo/toold/adapters/node"
+	"github.com/yankeguo/toold/adapters/yarn"
 )
 
 var (
@@ -36,6 +38,8 @@ func main() {
 
 	hand := toold.NewApp(stor, map[string]toold.Adapter{
 		"node": &node.Adapter{},
+		"yarn": &yarn.Adapter{},
+		"cnpm": &cnpm.Adapter{},
 	})
 
 	s := &http.Server{

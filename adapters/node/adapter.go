@@ -29,7 +29,7 @@ func createFilePattern(os string, arch string) (prefix string, suffix string, ok
 
 type Adapter struct{}
 
-func (a Adapter) Build(ctx context.Context, opts toold.AdapterOptions) (err error) {
+func (a *Adapter) Build(ctx context.Context, opts toold.AdapterOptions) (err error) {
 	defer rg.Guard(&err)
 
 	pfx, sfx, ok := createFilePattern(opts.OS, opts.Arch)

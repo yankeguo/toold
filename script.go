@@ -34,7 +34,11 @@ func (sb *ScriptBuilder) WriteTo(rw http.ResponseWriter) {
 	rw.Write(buf)
 }
 
-func (sb *ScriptBuilder) add(layout string, data map[string]any) {
+func (sb *ScriptBuilder) Add(s string) {
+	sb.b.WriteString(s)
+}
+
+func (sb *ScriptBuilder) AddTemplate(layout string, data map[string]any) {
 	if !strings.HasSuffix(layout, "\n") {
 		layout += "\n"
 	}
@@ -50,12 +54,30 @@ func (sb *ScriptBuilder) AddWarning(s string) {
 		items[i] = "toold: " + items[i]
 	}
 
-	sb.add(
+	sb.AddTemplate(
 		`echo "{{.content}}" | base64 -d > /dev/stderr`,
 		map[string]any{
 			"content": base64.StdEncoding.EncodeToString([]byte(strings.Join(items, "\n"))),
 		},
 	)
+}
+
+type ScriptGlobalNodePackageOptions struct {
+	Command  string
+	Package  string
+	Registry string
+}
+
+func (sb *ScriptBuilder) AddScriptGlobalNodePackageOptions(opts ScriptGlobalNodePackageOptions) {
+	sb.AddTemplate(`
+if ! command -v "{{.command}}" > /dev/null; then
+	npm install -g "{{.package}}"{{if .registry}} --registry="{{.registry}}"{{end}}
+fi
+`, map[string]any{
+		"command":  opts.Command,
+		"package":  opts.Package,
+		"registry": opts.Registry,
+	})
 }
 
 type ScriptDownloadAndExtractOptions struct {
@@ -66,7 +88,7 @@ type ScriptDownloadAndExtractOptions struct {
 }
 
 func (sb *ScriptBuilder) AddDownloadAndExtract(opts ScriptDownloadAndExtractOptions) {
-	sb.add(`
+	sb.AddTemplate(`
 TOOLD_ROOT="${TOOLD_ROOT}"
 if [ -z "${TOOLD_ROOT}" ]; then
   echo "toold: TOOLD_ROOT is not set, default to ~/.toold" > /dev/stderr
