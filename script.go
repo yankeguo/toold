@@ -93,37 +93,37 @@ type ScriptDownloadAndExtractOptions struct {
 
 func (sb *ScriptBuilder) AddDownloadAndExtract(opts ScriptDownloadAndExtractOptions) {
 	sb.AddTemplate(`
-TOOLD_ROOT="${TOOLD_ROOT}"
-if [ -z "${TOOLD_ROOT}" ]; then
-    echo "toold: TOOLD_ROOT is not set, default to ~/.toold" 1>&2
-    TOOLD_ROOT="${HOME}/.toold"
+TOOLD_HOME="${TOOLD_HOME}"
+if [ -z "${TOOLD_HOME}" ]; then
+    echo "toold: \$TOOLD_HOME is not set, using ~/.toold" 1>&2
+    TOOLD_HOME="${HOME}/.toold"
 fi
 
-mkdir -p "${TOOLD_ROOT}" 1>&2
+mkdir -p "${TOOLD_HOME}" 1>&2
 
 if [ -f "${TOOLD_HOME}/{{.dir}}.incomplete" ]; then
     echo "toold: found incomplete dir {{.dir}}, cleaning up" 1>&2
-    rm -rf "${TOOLD_ROOT}/{{.dir}}" 1>&2
+    rm -rf "${TOOLD_HOME}/{{.dir}}" 1>&2
 fi
 
-if [ ! -d "${TOOLD_ROOT}/{{.dir}}" ]; then
-    touch "${TOOLD_ROOT}/{{.dir}}.incomplete" 1>&2
-    mkdir -p "${TOOLD_ROOT}/{{.dir}}" 1>&2
+if [ ! -d "${TOOLD_HOME}/{{.dir}}" ]; then
+    touch "${TOOLD_HOME}/{{.dir}}.incomplete" 1>&2
+    mkdir -p "${TOOLD_HOME}/{{.dir}}" 1>&2
     echo "toold: downloading {{.dir}}" 1>&2
-    curl -sSL "{{.url}}" | tar -xz -C "${TOOLD_ROOT}/{{.dir}}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}} 1>&2
-    rm -f "${TOOLD_ROOT}/{{.dir}}.incomplete" 1>&2
+    curl -sSL "{{.url}}" | tar -xz -C "${TOOLD_HOME}/{{.dir}}" {{if .strip_components}}--strip-components={{.strip_components}}{{end}} 1>&2
+    rm -f "${TOOLD_HOME}/{{.dir}}.incomplete" 1>&2
 fi
 
 {{if .env_prepend_path}}
 echo "toold: using {{.dir}}" 1>&2
 {{range .env_prepend_path}}
-echo "export PATH=\"${TOOLD_ROOT}/{{$.dir}}{{.}}:\$PATH\""
+echo "export PATH=\"${TOOLD_HOME}/{{$.dir}}{{.}}:\$PATH\""
 {{end}}
 {{end}}
 
 {{if .env}}
 {{range $key, $value := .env}}
-echo "export {{$key}}=\"${TOOLD_ROOT}/{{$.dir}}{{$value}}\""
+echo "export {{$key}}=\"${TOOLD_HOME}/{{$.dir}}{{$value}}\""
 {{end}}
 {{end}}
 `,
