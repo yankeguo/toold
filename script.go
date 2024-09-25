@@ -87,7 +87,8 @@ type ScriptDownloadAndExtractOptions struct {
 	URL             string
 	Dir             string
 	StripComponents int
-	EnvPrependPath  string
+	EnvPrependPath  []string
+	Env             map[string]string
 }
 
 func (sb *ScriptBuilder) AddDownloadAndExtract(opts ScriptDownloadAndExtractOptions) {
@@ -115,7 +116,15 @@ fi
 
 {{if .env_prepend_path}}
 echo "toold: using {{.dir}}" 1>&2
-echo "export PATH=\"${TOOLD_ROOT}/{{.dir}}/{{.env_prepend_path}}:\$PATH\""
+{{range .env_prepend_path}}
+echo "export PATH=\"${TOOLD_ROOT}/{{$.dir}}{{.}}:\$PATH\""
+{{end}}
+{{end}}
+
+{{if .env}}
+{{range $key, $value := .env}}
+echo "export {{$key}}=\"${TOOLD_ROOT}/{{$.dir}}{{$value}}\""
+{{end}}
 {{end}}
 `,
 		map[string]any{
@@ -123,6 +132,7 @@ echo "export PATH=\"${TOOLD_ROOT}/{{.dir}}/{{.env_prepend_path}}:\$PATH\""
 			"strip_components": opts.StripComponents,
 			"url":              opts.URL,
 			"env_prepend_path": opts.EnvPrependPath,
+			"env":              opts.Env,
 		},
 	)
 }

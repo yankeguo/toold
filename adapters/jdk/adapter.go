@@ -52,17 +52,22 @@ func (a *Adapter) Build(ctx context.Context, opts toold.AdapterOptions) (err err
 		VersionConstraint: opts.Version,
 	}))
 
-	envPrependPath := "bin"
+	envJavaHome := ""
+	envPrependPath := "/bin"
 
 	if opts.OS == toold.Darwin {
-		envPrependPath = "Contents/Home/bin"
+		envJavaHome = "/Contents/Home"
+		envPrependPath = "/Contents/Home/bin"
 	}
 
 	opts.Out.AddDownloadAndExtract(toold.ScriptDownloadAndExtractOptions{
 		URL:             rg.Must(opts.Storage.CreateSignedURL(ctx, "jdk/"+file, time.Minute*10)),
 		Dir:             "jdk-" + version.String(),
 		StripComponents: 1,
-		EnvPrependPath:  envPrependPath,
+		Env: map[string]string{
+			"JAVA_HOME": envJavaHome,
+		},
+		EnvPrependPath: []string{envPrependPath},
 	})
 	return
 }
