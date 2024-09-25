@@ -12,6 +12,7 @@ import (
 	"github.com/yankeguo/toold"
 	"github.com/yankeguo/toold/adapters/cnpm"
 	"github.com/yankeguo/toold/adapters/jdk"
+	"github.com/yankeguo/toold/adapters/maven"
 	"github.com/yankeguo/toold/adapters/node"
 	"github.com/yankeguo/toold/adapters/yarn"
 )
@@ -38,10 +39,11 @@ func main() {
 	stor := rg.Must(toold.NewStorage(opts))
 
 	hand := toold.NewApp(stor, map[string]toold.Adapter{
-		"node": &node.Adapter{},
-		"yarn": &yarn.Adapter{},
-		"cnpm": &cnpm.Adapter{},
-		"jdk":  &jdk.Adapter{},
+		"node":  &node.Adapter{},
+		"yarn":  &yarn.Adapter{},
+		"cnpm":  &cnpm.Adapter{},
+		"jdk":   &jdk.Adapter{},
+		"maven": &maven.Adapter{},
 	})
 
 	s := &http.Server{
