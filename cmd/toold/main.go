@@ -13,6 +13,10 @@ import (
 	"github.com/yankeguo/toold/adapters/node"
 )
 
+var (
+	AppVersion = "unknown"
+)
+
 func main() {
 	var err error
 	defer func() {
@@ -23,6 +27,8 @@ func main() {
 		os.Exit(1)
 	}()
 	defer rg.Guard(&err)
+
+	log.Println("toold", AppVersion)
 
 	opts := rg.Must(toold.LoadOptions())
 
