@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.1.3 - 2024-09-25
+#### Documentation
+- update README.md [skip ci] - (064b0af) - GUO YANKE
+#### Features
+- simple mutex lock - (0e1daeb) - GUO YANKE
+
+- - -
+
 ## v0.1.2 - 2024-09-25
 #### Bug Fixes
 - make env effective instantly - (a25ca39) - GUO YANKE
