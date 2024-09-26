@@ -25,7 +25,7 @@ var (
 func CreateVersionExtractor(opts toold.AdapterOptions) numver.VersionExtractor {
 	return rg.Must(toold.CreateRegexpVersionExtractor(
 		fmt.Sprintf(
-			`^node-v(?<version>.+)-%s-%s\.tar\.gz$`,
+			`node-(?<version>.+)-%s-%s\.tar\.gz$`,
 			toold.ResolvePlatform(opts.OS, mOS),
 			toold.ResolvePlatform(opts.Arch, mArch),
 		),

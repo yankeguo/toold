@@ -25,7 +25,7 @@ var (
 func CreateVersionExtractor(opts toold.AdapterOptions) numver.VersionExtractor {
 	return rg.Must(toold.CreateRegexpVersionExtractor(
 		fmt.Sprintf(
-			`jdk_%s_%s_hotspot_(?<version>.+)\.tar\.gz$`,
+			`jdk_%s_%s_(?<version>.+)\.tar\.gz$`,
 			toold.ResolvePlatform(opts.Arch, mArch),
 			toold.ResolvePlatform(opts.OS, mOS),
 		),
