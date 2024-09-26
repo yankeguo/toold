@@ -2,9 +2,11 @@ package jdk
 
 import (
 	"context"
-	"strings"
+	"errors"
+	"fmt"
 	"time"
 
+	"github.com/yankeguo/numver"
 	"github.com/yankeguo/rg"
 	"github.com/yankeguo/toold"
 )
@@ -20,23 +22,14 @@ var (
 	}
 )
 
-func createVersionExtractor(os string, arch string) toold.VersionExtractor {
-	platform := "jdk_" + toold.ResolvePlatform(arch, mArch) + "_" + toold.ResolvePlatform(os, mOS)
-
-	return func(src string) (ver string, ok bool) {
-		// check tar.gz
-		if !strings.HasSuffix(src, ".tar.gz") {
-			return
-		}
-		// check platform
-		if !strings.Contains(src, platform) {
-			return
-		}
-		// extract after version
-		ver = src[strings.Index(src, platform)+len(platform):]
-		ok = true
-		return
-	}
+func CreateVersionExtractor(opts toold.AdapterOptions) numver.VersionExtractor {
+	return rg.Must(toold.CreateRegexpVersionExtractor(
+		fmt.Sprintf(
+			`jdk_%s_%s_hotspot_(?<version>.+)\.tar\.gz$`,
+			toold.ResolvePlatform(opts.Arch, mArch),
+			toold.ResolvePlatform(opts.OS, mOS),
+		),
+	))
 }
 
 type Adapter struct{}
@@ -46,11 +39,16 @@ func (a *Adapter) Build(ctx context.Context, opts toold.AdapterOptions) (err err
 
 	files := rg.Must(opts.Storage.ListFiles(ctx, "jdk"))
 
-	file, version := rg.Must2(toold.FindBestVersionedFile(toold.FindBestVersionedFileOptions{
-		Files:             files,
-		VersionExtractor:  createVersionExtractor(opts.OS, opts.Arch),
-		VersionConstraint: opts.Version,
-	}))
+	file, version, found := numver.Search(numver.SearchOptions{
+		Items:      files,
+		Constraint: opts.Version,
+		Extractor:  CreateVersionExtractor(opts),
+	})
+
+	if !found {
+		err = errors.New("jdk version not found for: " + opts.Version)
+		return
+	}
 
 	envJavaHome := ""
 	envPrependPath := "/bin"

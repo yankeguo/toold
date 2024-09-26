@@ -2,26 +2,18 @@ package maven
 
 import (
 	"context"
-	"strings"
+	"errors"
 	"time"
 
+	"github.com/yankeguo/numver"
 	"github.com/yankeguo/rg"
 	"github.com/yankeguo/toold"
 )
 
-func createVersionExtractor() toold.VersionExtractor {
-	return func(src string) (ver string, ok bool) {
-		// check tar.gz
-		if !strings.HasSuffix(src, ".tar.gz") {
-			return
-		}
-		if !strings.Contains(src, "maven") {
-			return
-		}
-		ver = src
-		ok = true
-		return
-	}
+func CreateVersionExtractor(opts toold.AdapterOptions) numver.VersionExtractor {
+	return rg.Must(toold.CreateRegexpVersionExtractor(
+		`maven-(?<version>.+)-bin\.tar\.gz$`,
+	))
 }
 
 type Adapter struct{}
@@ -31,11 +23,16 @@ func (a *Adapter) Build(ctx context.Context, opts toold.AdapterOptions) (err err
 
 	files := rg.Must(opts.Storage.ListFiles(ctx, "maven"))
 
-	file, version := rg.Must2(toold.FindBestVersionedFile(toold.FindBestVersionedFileOptions{
-		Files:             files,
-		VersionExtractor:  createVersionExtractor(),
-		VersionConstraint: opts.Version,
-	}))
+	file, version, found := numver.Search(numver.SearchOptions{
+		Items:      files,
+		Constraint: opts.Version,
+		Extractor:  CreateVersionExtractor(opts),
+	})
+
+	if !found {
+		err = errors.New("maven version not found for: " + opts.Version)
+		return
+	}
 
 	opts.Out.AddDownloadAndExtract(toold.ScriptDownloadAndExtractOptions{
 		URL:             rg.Must(opts.Storage.CreateSignedURL(ctx, "maven/"+file, time.Minute*10)),

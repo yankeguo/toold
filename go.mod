@@ -5,6 +5,7 @@ go 1.23.1
 require (
 	github.com/stretchr/testify v1.9.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.55
+	github.com/yankeguo/numver v0.1.1
 	github.com/yankeguo/rg v1.3.1
 	gopkg.in/yaml.v3 v3.0.1
 )
