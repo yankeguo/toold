@@ -18,6 +18,7 @@ var (
 type ManifestTool struct {
 	Name    string
 	Version string
+	Force   bool
 }
 
 type Manifest struct {
@@ -52,17 +53,19 @@ outerLoop:
 				continue
 			}
 			m.Tools = append(m.Tools, ManifestTool{
-				Name:    key,
-				Version: "",
+				Name: key,
 			})
 		} else if len(splits) == 2 {
 			key, ver := strings.TrimSpace(splits[0]), strings.TrimSpace(splits[1])
 			if key == "" || ver == "" {
 				continue
 			}
+			force := strings.HasSuffix(ver, "!")
+			ver = strings.TrimSuffix(ver, "!")
 			m.Tools = append(m.Tools, ManifestTool{
 				Name:    key,
 				Version: ver,
+				Force:   force,
 			})
 		}
 	}

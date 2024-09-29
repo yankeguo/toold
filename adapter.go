@@ -4,11 +4,12 @@ import "context"
 
 type AdapterOptions struct {
 	Storage *Storage
-	Out     *ScriptBuilder
+	Script  *ScriptBuilder
 	OS      string
 	Arch    string
 	Name    string
 	Version string
+	Force   bool
 }
 
 type Adapter interface {

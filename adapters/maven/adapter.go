@@ -34,7 +34,7 @@ func (a *Adapter) Build(ctx context.Context, opts toold.AdapterOptions) (err err
 		return
 	}
 
-	opts.Out.AddDownloadAndExtract(toold.ScriptDownloadAndExtractOptions{
+	opts.Script.AddDownloadAndExtract(toold.ScriptDownloadAndExtractOptions{
 		URL:             rg.Must(opts.Storage.CreateSignedURL(ctx, "maven/"+file, time.Minute*10)),
 		Dir:             "maven-" + version.String(),
 		StripComponents: 1,

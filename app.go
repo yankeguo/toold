@@ -30,11 +30,12 @@ func (h *App) build(ctx context.Context, out *ScriptBuilder, m Manifest) {
 		sub := NewScriptBuilder()
 		if err := adapter.Build(ctx, AdapterOptions{
 			Storage: h.storage,
-			Out:     sub,
+			Script:  sub,
 			OS:      m.OS,
 			Arch:    m.Arch,
 			Name:    tool.Name,
 			Version: tool.Version,
+			Force:   tool.Force,
 		}); err != nil {
 			out.AddWarning("adapter [" + tool.Name + "] failed: " + err.Error())
 			break

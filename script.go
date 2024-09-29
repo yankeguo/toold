@@ -66,20 +66,30 @@ type ScriptGlobalNodePackageOptions struct {
 	Command  string
 	Package  string
 	Registry string
+	Version  string
+	Force    bool
 }
 
 func (sb *ScriptBuilder) AddScriptGlobalNodePackageOptions(opts ScriptGlobalNodePackageOptions) {
 	sb.AddTemplate(`
+{{if .force}}
+{{else}}
 if command -v "{{.command}}" > /dev/null; then
     echo "toold: {{.command}} is already installed" 1>&2
 else
+{{end}}
     echo "toold: installing {{.command}}" 1>&2
-    npm install -g "{{.package}}"{{if .registry}} --registry="{{.registry}}"{{end}} 1>&2
+    npm install -g "{{.package}}{{if .version}}@{{.version}}{{end}}"{{if .registry}} --registry="{{.registry}}"{{end}} 1>&2
+{{if .force}}
+{{else}}
 fi
+{{end}}
 `, map[string]any{
 		"command":  opts.Command,
 		"package":  opts.Package,
 		"registry": opts.Registry,
+		"version":  opts.Version,
+		"force":    opts.Force,
 	})
 }
 
