@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## v0.1.4 - 2024-09-29
+#### Features
+- add force option - (c9837ec) - GUO YANKE
+#### Refactoring
+- relaxing name matching - (3d7256c) - GUO YANKE
+- using numver package - (477b9c7) - GUO YANKE
+
+- - -
+
 ## v0.1.3 - 2024-09-25
 #### Documentation
 - update README.md [skip ci] - (064b0af) - GUO YANKE
